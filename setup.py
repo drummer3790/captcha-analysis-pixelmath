@@ -10,6 +10,7 @@ leftBound = None
 rightBound = None
 topBound = None
 bottomBound = None
+
 for i in range(len(colIntensity)):
 	if (colIntensity[i] / len(rowIntensity) != cutoffvalue) and not leftBound:
 		leftBound = i
@@ -21,10 +22,13 @@ for i in range(len(rowIntensity)):
 		topBound = i
 	if (rowIntensity[i] / len(colIntensity) == cutoffvalue) and topBound:
 		bottomBound = i - 1
-		
-
 
 # Perceptron
 
 # 10 x 10 array
-template = 
+template = [[0 for i in range(10)] for j in range(10)]
+# Perceptron Training Sets
+
+positiveX
+negativeX
+
