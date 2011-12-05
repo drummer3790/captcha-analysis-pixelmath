@@ -23,28 +23,37 @@ for i in range(len(rowIntensity)):
 	if (rowIntensity[i] / len(colIntensity) == cutoffvalue) and topBound:
 		bottomBound = i - 1
 
-
-# Neural Network
- 
- inputNodes = []
-
-
-
-# 10 x 10 array
-template = [[0 for i in range(10)] for j in range(10)]
-# Perceptron Learning
-
-# Load in training images
+# Training Data
+# Defines the number of vertical/horizontal blocks
+resolution = 10
+# Load in training images - 50x50px Images
 a = pmOpenImage(0, 'a.png')
-a_Data = [[0 for i in range(10)] for j in range(10)]
+a_Data = [[0 for i in range(resolution)] for j in range(resolution)]
 for i in range(len(a_Data)):
 	for j in range(len(a_Data)):
 		a_Data[j][i] = pixelAvg(a, j * 5, i * 5, (j + 1) * 5, (i + 1) * 5)
-threshold = 0.5
-learnRate =
-weights = [0 for i in range(100)]
-training_set = [
 
+# Neural Network
+
+# Input Layer
+# Total input nodes = total blocks: vertical * horizontal
+input_nodes  = resolution**2
+inputLayer = [inputNode(a_Data[i/10][i%10]) for i in range(input_nodes)]
+#inputLayer = [inputNode(a_Data[i/10][i%10], num_nodes) for i in range(num_nodes)] 
+
+# Hidden Layer
+hidden_nodes = 13 # May be adjusted to find sweet spot
+inputValues = [inputLayer[i].value for i in inputLayer]
+hiddenLayer = [hiddenNode(inputValues, hidden_nodes) for i in range(hidden_nodes)]
+
+# Output Layer - A node for each letter in the alphabet
+hiddenValues = [hiddenLayer[i].output for i in hiddenLayer]
+outputLayer = [outputNode(hiddenValues, 26) for i in range(26)]
+
+
+
+
+# Misc. Functions
 def pixelAvg(img, x1, y1, x2, y2,):
 	sum = 0
 	for y in range(y2 + 1):
