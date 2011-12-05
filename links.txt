@@ -1,0 +1,6 @@
+http://www.codeproject.com/KB/cs/BackPropagationNeuralNet.aspx
+https://www.cs.washington.edu/education/courses/cse415/11au/materials/neural.pdf
+http://media.wiley.com/product_data/excerpt/19/04713491/0471349119.pdf
+http://www.cs.cornell.edu/courses/cs472/2005fa/lectures/12-anns_part2_6up.pdf
+http://www.dtreg.com/mlfn.htm
+http://en.wikipedia.org/wiki/Segmentation_(image_processing)
