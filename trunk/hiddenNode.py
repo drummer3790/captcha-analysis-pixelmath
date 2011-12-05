@@ -4,7 +4,7 @@ from random import random
 class hiddenNode:
 	def __init__(self, inputs, num_nodes):
 		self.inputs = inputs
-		self.weights = [random() for i in num_nodes]
+		self.weightsIn = [random() for i in num_nodes]
 		self.output = output()
 		
 	def adjustWeight(input, error):
