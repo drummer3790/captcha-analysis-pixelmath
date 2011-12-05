@@ -39,7 +39,6 @@ for i in range(len(a_Data)):
 # Total input nodes = total blocks: vertical * horizontal
 input_nodes  = resolution**2
 inputLayer = [inputNode(a_Data[i/10][i%10]) for i in range(input_nodes)]
-#inputLayer = [inputNode(a_Data[i/10][i%10], num_nodes) for i in range(num_nodes)] 
 
 # Hidden Layer
 hidden_nodes = 13 # May be adjusted to find sweet spot
@@ -48,9 +47,8 @@ hiddenLayer = [hiddenNode(inputValues, hidden_nodes) for i in range(hidden_nodes
 
 # Output Layer - A node for each letter in the alphabet
 hiddenValues = [hiddenLayer[i].output for i in hiddenLayer]
-outputLayer = [outputNode(hiddenValues, 26) for i in range(26)]
-
-
+outputLayer = [outputNode(hiddenValues, 26, i) for i in range(26)]
+match = outputLayer.index(max([outputLayer[i].output for i in outputLayer]))
 
 
 # Misc. Functions
