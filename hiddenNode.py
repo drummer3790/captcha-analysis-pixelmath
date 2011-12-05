@@ -2,9 +2,13 @@ class hiddenNode:
 	def __init__(self, value, weight):
 		self.value = normalizeValue(value)
 		self.weight = weight
-		
-	def normalizeValue(value):
-		return (value / 8388607/2) - 1
+		self.output = self.output(value)
 		
 	def adjustWeight(error):
 		return self.weight 
+
+	def output(input):
+	
+	def sigmoid(h):
+		return 1/(1+ex
+		
