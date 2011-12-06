@@ -32,24 +32,40 @@ a_Data = [[0 for i in range(resolution)] for j in range(resolution)]
 for i in range(len(a_Data)):
 	for j in range(len(a_Data)):
 		a_Data[j][i] = pixelAvg(a, j * 5, i * 5, (j + 1) * 5, (i + 1) * 5)
+		
+training_data = [(a_Data, 'A')]
+		
+## TODO: Add more letters ##
 
 # Neural Network
 
-# Input Layer
-# Total input nodes = total blocks: vertical * horizontal
-input_nodes  = resolution**2
-inputLayer = [inputNode(a_Data[i/10][i%10]) for i in range(input_nodes)]
+# Input Layer - Initialized for each image - Nothing to do here
 
 # Hidden Layer
-hidden_nodes = 13 # May be adjusted to find sweet spot
-inputValues = [inputLayer[i].value for i in inputLayer]
-hiddenLayer = [hiddenNode(inputValues, hidden_nodes) for i in range(hidden_nodes)]
+hidden_nodes = 63 # May be adjusted to find sweet spot
+hiddenLayer = [hiddenNode(hidden_nodes) for i in range(hidden_nodes)]
 
 # Output Layer - A node for each letter in the alphabet
-hiddenValues = [hiddenLayer[i].output for i in hiddenLayer]
-outputLayer = [outputNode(hiddenValues, 26, i) for i in range(26)]
-match = outputLayer.index(max([outputLayer[i].output for i in outputLayer]))
+outputLayer = [outputNode(26, i) for i in range(26)]
 
+# Forward Propagation
+# Begin adding in items from the training set.
+
+# Total input nodes = total blocks: vertical * horizontal
+input_nodes  = resolution**2
+for i in training_data:
+	inputLayer = [inputNode(training_data[i](0)[j/10][j%10]) for j in range(input_nodes)]
+	inputValues = [inputLayer[j].value for j in inputLayer]
+	for j in hiddenLayer:
+		hiddenLayer[j].setInputs = inputValues
+	hiddenValues = [hiddenLayer[j].output for j in hiddenLayer]
+	for j in outputLayer:
+		outputLayer[j].setInputs = hiddenValues
+	predictedMatch = outputLayer.index(max([outputLayer[j].output for j in outputLayer]))
+
+# Backpropagation
+
+##	TODO	##
 
 # Misc. Functions
 def pixelAvg(img, x1, y1, x2, y2,):
