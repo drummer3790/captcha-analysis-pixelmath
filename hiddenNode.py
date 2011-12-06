@@ -2,10 +2,8 @@ import math
 from random import random
 
 class hiddenNode:
-	def __init__(self, inputs, num_nodes):
-		self.inputs = inputs
+	def __init__(self, num_nodes):
 		self.weightsIn = [random() for i in num_nodes]
-		self.output = output()
 		
 	def adjustWeight(input, error):
 		self.weights[input] -= error 
@@ -15,3 +13,6 @@ class hiddenNode:
 	
 	def sigmoid_func(h):
 		return 1/(1+math.exp(-h))
+		
+	def setInputs(inputs):
+		self.inputs = inputs
