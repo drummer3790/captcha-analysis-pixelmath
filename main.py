@@ -34,16 +34,18 @@ class NeuralNetwork:
 			self.output_layer[i].value = self.sigmoid(self.output_layer[i].input)
 			# Error = tk - outk
 			if self.output_layer[i].letter == expected_output:
-				self.output_layer[i].error = 1 - self.output_layer[i].input
+				self.output_layer[i].error = 1 - self.output_layer[i].value
+				#print 'Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error)
 			else:
-				self.output_layer[i].error = abs(0 - self.output_layer[i].input)
+				self.output_layer[i].error = abs(0 - self.output_layer[i].value)
+				#print 'Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error)
 				
 		# Overall error equation? : E(x) = 0.5 * sum([output_layer[i].error for i in output_layer] ** 2)
 		self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
 		
 		# Returns the letter it predicted
 		# return max(self.output_layer[i] for i in self.output_layer).letter
-		return max(layer for layer in self.output_layer).letter
+		return min(layer for layer in self.output_layer).letter
 	
 	def backpropagate(self):
 		# ∆wij = ηδj outj
@@ -92,16 +94,16 @@ class OutputNode:
 		return str(self.letter)
 	
 	def __lt__(self, other):
-		return self.value < other.value
+		return self.error < other.error
 	                               
 	def __gt__(self, other):       
-		return self.value > other.value
+		return self.error > other.error
 	                               
 	def __eq__(self, other):       
-		return self.value == other.value
+		return self.error == other.error
 	                               
 	def __ne__(self, other):       
-		return self.value != other.value
+		return self.error != other.error
 
 # Misc. Functions
 
@@ -197,12 +199,14 @@ def pixelAvg(img, x1, y1, x2, y2):
 # Training Data
 # Load in training images - 50x50px Images
 resolution = 10 # Defines the number of vertical/horizontal blocks
-a_Data = imageData('a.png', resolution)
+a_Data = imageData('test_set/a.png', resolution)
+b_Data = imageData('test_set/b.png', resolution)
+
 # And so forth for every training image...
 
-print(a_Data)
+#print(a_Data)
 
-training_data = [(a_Data, 'A')] # , (b_Data, 'B'), ...]
+training_data = [(a_Data, 'A'), (b_Data, 'B')] # , (b_Data, 'B'), ...]
 
 ## TODO: Add more letters ##
 
@@ -217,13 +221,27 @@ network = NeuralNetwork(input_nodes, hidden_nodes, output_nodes, learning_rate)
 epoch = 0 # Used to determine how many times we have ran through the training data.
 while True:
 	for datum in training_data:
+		print datum[1]
 		predicted_character = network.forward_propagate(datum[0], datum[1])
 		network.backpropagate()
 	#### START STATS LINES #### 
-	print 'Pass: ' + str(epoch) + ' Predicted Character: ' + str(predicted_character) \
-	 	+ ' Current network error rate is: ' + str(network.net_error) + '%'
+		print 'Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character) \
+	 		+ ' Expected Character: ' + str(datum[1]) + ' Current network error rate is: ' + str(network.net_error) + '%'
 	#### END STATS LINES ####	
 	epoch += 1
 	if network.net_error <= 0.05 or epoch > 100:
 		break
 # Network should be trained to data...
+
+# Try something new...
+basic_captcha_a = imageData('captchas/basic_captcha_a.png', resolution)
+easy_captcha_a = imageData('captchas/easy_captcha_a.png', resolution)
+new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A')]
+for datum in new_data:
+	predicted_character = network.forward_propagate(datum[0], datum[1])
+	print 'This image contains the character: ' + str(predicted_character)
+	print 'Is this the expected output? '
+	if predicted_character == datum[1]:
+		print 'Yes.'
+	else:
+		print 'No.'
