@@ -54,7 +54,7 @@ outputLayer = [outputNode(26, i) for i in range(26)]
 # Total input nodes = total blocks: vertical * horizontal
 input_nodes  = resolution**2
 for i in training_data:
-	inputLayer = [inputNode(training_data[i][0][j/10][j%10]) for j in range(input_nodes)]
+	inputLayer = [inputNode(training_data[i][0][j/resolution][j%resolution]) for j in range(input_nodes)]
 	inputValues = [inputLayer[j].value for j in inputLayer]
 	for j in hiddenLayer:
 		hiddenLayer[j].setInputs = inputValues
@@ -65,6 +65,14 @@ for i in training_data:
 	if predictedLetter == training_data[i][1]:
 		#We made a match
 	else:
+		
+def initializeNetwork():
+	inputLayer = []
+# pipe in training_data[0] for input and training_data[1] for output		
+def forwardPropagate(input, expected_output):
+	input_nodes = resolution**2
+	for i in input:
+		inputLayer = [inputNode(input[i][j/10][j%10]) for j in range(input_nodes)]
 		
 
 # Backpropagation

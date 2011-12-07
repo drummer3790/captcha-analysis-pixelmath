@@ -1,6 +1,3 @@
-class inputNode:
-	def __init__(self, value):
-		self.value = normalizeValue(value)
-		
-	def normalizeValue(value):
-	        return (value / 8388607/2) - 1
+class inputNode:		
+	def set_value(value):
+		self.value = (value / 8388607/2) - 1
