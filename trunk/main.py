@@ -44,8 +44,14 @@ class NeuralNetwork:
 		self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
 		
 		# Returns the letter it predicted
-		# return max(self.output_layer[i] for i in self.output_layer).letter
-		return min(layer for layer in self.output_layer).letter
+		return max(self.output_layer[i] for i in range(len(self.output_layer))).letter
+		# return min(layer for layer in self.output_layer).letter
+		# best = (self.output_layer[0].error, self.output_layer[0].letter)
+		# for i in range(len(self.output_layer)):
+		#	if self.output_layer[i].error < best:
+		#		best = (self.output_layer[i].error, self.output_layer[i].letter)
+		
+		# return best[1]
 	
 	def backpropagate(self):
 		# ∆wij = ηδj outj
@@ -98,6 +104,12 @@ class OutputNode:
 	                               
 	def __gt__(self, other):       
 		return self.error > other.error
+
+	def __le__(self, other):
+		return self.error <= other.error
+	                               
+	def __ge__(self, other):       
+		return self.error >= other.error
 	                               
 	def __eq__(self, other):       
 		return self.error == other.error
@@ -201,12 +213,15 @@ def pixelAvg(img, x1, y1, x2, y2):
 resolution = 10 # Defines the number of vertical/horizontal blocks
 a_Data = imageData('test_set/a.png', resolution)
 b_Data = imageData('test_set/b.png', resolution)
+c_Data = imageData('test_set/c.png', resolution)
+d_Data = imageData('test_set/d.png', resolution)
+e_Data = imageData('test_set/e.png', resolution)
 
 # And so forth for every training image...
 
 #print(a_Data)
 
-training_data = [(a_Data, 'A'), (b_Data, 'B')] # , (b_Data, 'B'), ...]
+training_data = [(a_Data, 'A'), (b_Data, 'B'), (c_Data, 'C'), (d_Data, 'D'), (e_Data, 'E')] # , (b_Data, 'B'), ...]
 
 ## TODO: Add more letters ##
 
@@ -236,7 +251,12 @@ while True:
 # Try something new...
 basic_captcha_a = imageData('captchas/basic_captcha_a.png', resolution)
 easy_captcha_a = imageData('captchas/easy_captcha_a.png', resolution)
-new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A')]
+new_font_captcha_a = imageData('captchas/new_font_captcha_a.png', resolution)
+new_font_captcha_b = imageData('captchas/new_font_captcha_b.png', resolution)
+hard_captcha_a = imageData('captchas/hard_captcha_a.png', resolution)
+basic_captcha_x = imageData('captchas/basic_captcha_x.png', resolution)
+new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A'), (new_font_captcha_a, 'A'),\
+	(new_font_captcha_b, 'B'), (hard_captcha_a, 'A'), (basic_captcha_x, 'X')]
 for datum in new_data:
 	predicted_character = network.forward_propagate(datum[0], datum[1])
 	print 'This image contains the character: ' + str(predicted_character)
