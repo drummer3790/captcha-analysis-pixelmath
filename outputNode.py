@@ -1,8 +1,5 @@
-from random import random
-
-class outputNode:
-	def __init__(self, num_nodes, letterOffset):
-		self.weights = [random() for i in inputs]
+class OutputNode:
+	def __init__(self, letterOffset):
         self.letter = chr(ord('A') + letterOffset)
 
 	def __str__(self):
@@ -19,6 +16,3 @@ class outputNode:
 	
 	def __ne__(self, other):
 		return self.output != other.output
-		
-	def adjustWeight(input, error):
-		self.weights[input] -= error 
