@@ -3,12 +3,12 @@ class NeuralNetwork:
 	def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate):
 		self.input_layer = [inputNode() for i in range(input_nodes)]
 		self.hidden_layer = [hiddenNode() for i in range(hidden_nodes)]
-		self.output_layer = [outputNodes() for i in range(output_nodes)]
+		self.output_layer = [outputNodes(i) for i in range(output_nodes)]
 		self.learning_rate = learning_rate
 		self.input_layer.weights = [random() for i in self.hidden_layer]
 		self.hidden_layer.weights = [random() for i in self.output_layer]
 	
-	def forward_propagate(input_data, expected_output, image_resolution):
+	def forward_propagate(input_data, expected_output):
 		# Setup input nodes
 		for i in input_layer:
 			self.input_layer[i].set_value(input_data[i])
@@ -34,7 +34,8 @@ class NeuralNetwork:
 			else:
 				self.output_layer[i].error = abs(0 - self.output_layer[i].input)
 		
-		predicted_letter = max(self.output_layer[i] for i in self.output_layer).letter
+			# Returns the letter it predicted
+			return max(self.output_layer[i] for i in self.output_layer).letter
 			
 	def backpropagate():
 		# ∆wij = ηδj outj
