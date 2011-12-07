@@ -16,13 +16,14 @@ def boundingBox(inputFile, cutoffvalue):
     if (colIntensity[i] / len(rowIntensity) == cutoffvalue) and leftBound and not rightBound:
       rightBound = i
     #print([leftBound, rightBound, topBound, bottomBound])
-    print(rightBound)
+    #print(rightBound)
   for i in range(len(rowIntensity)):
     if (rowIntensity[i] / len(colIntensity) != cutoffvalue) and not bottomBound:
       bottomBound = i
     if (rowIntensity[i] / len(colIntensity) == cutoffvalue) and bottomBound and not topBound:
       topBound = i
     #print([leftBound, rightBound, topBound, bottomBound])
+    print([bottomBound, topBound])
   return [leftBound, rightBound, bottomBound, topBound]
 
 
@@ -54,12 +55,14 @@ def imageData(imageName, resolution):
   # Defines the height and width of each block inside the bounding box subject to the given resolution.
   blockLengthX = blockLength(leftBound, rightBound, resolution)
   blockLengthY = blockLength(bottomBound, topBound, resolution) # Assumes the point (0, 0) is at top left corner of image
-
+  print([blockLengthX, blockLengthY])
   image_Data = [[0 for i in range(resolution)] for j in range(resolution)]
-  for i in range(len(image_Data)):
-    for j in range(len(image_Data)):
-    # This should be tested to see if my math for the pixelAvg() parameters is correct.
-      image_Data[j][i] = pixelAvg(image, leftBound + j * blockLengthX, topBound + i * blockLengthY, leftBound + (j + 1) * blockLengthX, topBound + (i + 1) * blockLengthY)
+  for j in range(len(image_Data)):
+    for i in range(len(image_Data)):
+      print([j, i])
+      # This should be tested to see if my math for the pixelAvg() parameters is correct.
+      image_Data[j][i] = pixelAvg(image, leftBound + i * blockLengthX, bottomBound + j * blockLengthY, leftBound + (i + 1) * blockLengthX - 1, bottomBound + (j + 1) * blockLengthY - 1)
+      print(image_Data[j][i])
   return image_Data
 
 
@@ -67,12 +70,14 @@ def imageData(imageName, resolution):
 # This should be tested; specifically, to make sure the denominator in the average equation is correct.
 # Precondition: The rectangle defined by x1, y1, x2, and y2 is a block.
 def pixelAvg(img, x1, y1, x2, y2):
-        sum = 0
-        for y in range(y2 + 1):
-                for x in range(x2 + 1):
-                        # Probably need to use pmGetPixel here.
-                        sum += pmGetPixelQuickly(img, x, y)
-        return sum / ((x2 - x1 + 1) * (y2 - y1 + 1)) # Assumes the point (0, 0) is at bottom left corner of image
+  print([x1, y1, x2, y2])
+  sum = 0
+  for y in range(y1, y2 + 1):
+    for x in range(x1, x2 + 1):
+      # Probably need to use pmGetPixel here
+      errortest = pmGetPixel(img, x, y)[0]
+      sum += pmGetPixelQuickly(img, x, y)
+  return sum / ((x2 - x1 + 1) * (y2 - y1 + 1)) # Assumes the point (0, 0) is at bottom left corner of image
 # Some weight times the pixel value should equal 1
 
 # Load image in
