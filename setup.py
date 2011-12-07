@@ -8,8 +8,6 @@ inputFileBoundingBox = boundingBox(inputFile, 255)
 # Defines the number of vertical/horizontal blocks
 resolution = 10
 
-
-
 # Training Data
 # Load in training images - 50x50px Images
 
