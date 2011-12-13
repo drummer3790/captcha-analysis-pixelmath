@@ -1,6 +1,7 @@
 # coding=utf-8
 import math
 from random import random
+debug_file = open('debug','w')
 class NeuralNetwork:
 	def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate):
 		self.input_layer = [InputNode() for i in range(input_nodes)]
@@ -32,19 +33,28 @@ class NeuralNetwork:
 			self.output_layer[i].input = sum([self.hidden_layer[j].output[i]
 				for j in range(len(self.hidden_layer))])
 			self.output_layer[i].value = self.sigmoid(self.output_layer[i].input)
+                        self.output_layer[i].target = 1 if self.output_layer[i].letter == expected_output else 0 
+                        self.output_layer[i].error = self.output_layer[i].target - self.output_layer[i].value
 			# Error = tk - outk
-			if self.output_layer[i].letter == expected_output:
-				self.output_layer[i].error = 1 - self.output_layer[i].value
-				#print 'Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error)
-			else:
-				self.output_layer[i].error = abs(0 - self.output_layer[i].value)
-				#print 'Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error)
+			#if self.output_layer[i].letter == expected_output:
+			#	self.output_layer[i].error = 1 - self.output_layer[i].value
+			#	#print 'Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error)
+                        #        debug_file.write('Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error) + '\n')
+
+			#else:
+			#	self.output_layer[i].error = abs(0 - self.output_layer[i].value)
+			#	#print 'Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error)
+                        #        debug_file.write('Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error) + '\n')
 				
 		# Overall error equation? : E(x) = 0.5 * sum([output_layer[i].error for i in output_layer] ** 2)
-		self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
+		#self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
+                self.net_error = sum([self.output_layer[i].error for i in range(len(self.output_layer))])
 		
 		# Returns the letter it predicted
-		return max(self.output_layer[i] for i in range(len(self.output_layer))).letter
+                #predicted = min(self.output_layer[i] for i in range(len(self.output_layer)))
+                #print str(predicted.letter) + ' ' + str(predicted.error)
+                #debug_file.write(str(predicted.letter) + ' ' + str(predicted.error)+ '\n')
+		#return predicted.letter
 		# return min(layer for layer in self.output_layer).letter
 		# best = (self.output_layer[0].error, self.output_layer[0].letter)
 		# for i in range(len(self.output_layer)):
@@ -236,12 +246,15 @@ network = NeuralNetwork(input_nodes, hidden_nodes, output_nodes, learning_rate)
 epoch = 0 # Used to determine how many times we have ran through the training data.
 while True:
 	for datum in training_data:
-		print datum[1]
+		#print datum[1]
+                debug_file.write(str(datum[1])+'\n')
 		predicted_character = network.forward_propagate(datum[0], datum[1])
 		network.backpropagate()
 	#### START STATS LINES #### 
-		print 'Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character) \
-	 		+ ' Expected Character: ' + str(datum[1]) + ' Current network error rate is: ' + str(network.net_error) + '%'
+		#print 'Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character) \
+	 	#	+ ' Expected Character: ' + str(datum[1]) + ' Current network error rate is: ' + str(network.net_error) + '%'
+                debug_file.write('Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character)
+	 		+ ' Expected Character: ' + str(datum[1]) + ' Current network error rate is: ' + str(network.net_error) + '%\n')
 	#### END STATS LINES ####	
 	epoch += 1
 	if network.net_error <= 0.05 or epoch > 100:
@@ -264,4 +277,4 @@ for datum in new_data:
 	if predicted_character == datum[1]:
 		print 'Yes.'
 	else:
-		print 'No.'
+           print 'No.'
