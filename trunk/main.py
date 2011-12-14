@@ -30,11 +30,11 @@ class NeuralNetwork:
 		
 		# Setup output nodes
 		for i in range(len(self.output_layer)):
-			self.output_layer[i].input = sum([self.hidden_layer[j].output[i]
+			self.output_layer[i].input = sum([self.hidden_layer[j].output[i] \
 				for j in range(len(self.hidden_layer))])
 			self.output_layer[i].value = self.sigmoid(self.output_layer[i].input)
-                        self.output_layer[i].target = 1 if self.output_layer[i].letter == expected_output else 0 
-                        self.output_layer[i].error = self.output_layer[i].target - self.output_layer[i].value
+			self.output_layer[i].target = 1 if self.output_layer[i].letter == expected_output else 0 
+			self.output_layer[i].error = self.output_layer[i].target - self.output_layer[i].value
 			# Error = tk - outk
 			#if self.output_layer[i].letter == expected_output:
 			#	self.output_layer[i].error = 1 - self.output_layer[i].value
@@ -48,7 +48,7 @@ class NeuralNetwork:
 				
 		# Overall error equation? : E(x) = 0.5 * sum([output_layer[i].error for i in output_layer] ** 2)
 		#self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
-                self.net_error = sum([self.output_layer[i].error for i in range(len(self.output_layer))])
+		self.net_error = abs(sum([self.output_layer[i].error for i in range(len(self.output_layer))]))
 		
 		# Returns the letter it predicted
                 #predicted = min(self.output_layer[i] for i in range(len(self.output_layer)))
@@ -62,6 +62,29 @@ class NeuralNetwork:
 		#		best = (self.output_layer[i].error, self.output_layer[i].letter)
 		
 		# return best[1]
+		#
+	'''This is essentially the same as forward propagate, except here we will not check target or calculate error'''
+	def predict(self, input_data):
+		# Setup input nodes
+		for i in range(len(self.input_layer)):
+			self.input_layer[i].set_value(input_data[i/10][i%10])
+			self.input_layer[i].output = [self.input_layer[i].value * \
+				self.input_layer[i].weights[j] for j in range(len(self.input_layer[i].weights))]
+		
+		# Setup hidden nodes
+		for i in range(len(self.hidden_layer)):
+			self.hidden_layer[i].input = sum([self.input_layer[j].output[i]
+			 	for j in range(len(self.input_layer))])
+			self.hidden_layer[i].value = self.sigmoid(self.hidden_layer[i].input)
+			self.hidden_layer[i].output = [self.hidden_layer[i].value * \
+				self.hidden_layer[i].weights[j] for j in range(len(self.hidden_layer[i].weights))]
+		
+		# Setup output nodes
+		for i in range(len(self.output_layer)):
+			self.output_layer[i].input = sum([self.hidden_layer[j].output[i]
+				for j in range(len(self.hidden_layer))])
+			self.output_layer[i].value = self.sigmoid(self.output_layer[i].input)
+		return max([self.output_layer[i] for i in range(len(self.output_layer))]).letter
 	
 	def backpropagate(self):
 		# ∆wij = ηδj outj
@@ -110,22 +133,22 @@ class OutputNode:
 		return str(self.letter)
 	
 	def __lt__(self, other):
-		return self.error < other.error
+		return self.value < other.value
 	                               
 	def __gt__(self, other):       
-		return self.error > other.error
-
-	def __le__(self, other):
-		return self.error <= other.error
+		return self.value > other.value
+                                   
+	def __le__(self, other):       
+		return self.value <= other.value
 	                               
 	def __ge__(self, other):       
-		return self.error >= other.error
+		return self.value >= other.value
 	                               
 	def __eq__(self, other):       
-		return self.error == other.error
+		return self.value == other.value
 	                               
 	def __ne__(self, other):       
-		return self.error != other.error
+		return self.value != other.value
 
 # Misc. Functions
 
@@ -133,8 +156,8 @@ class OutputNode:
 def boundingBox(inputFile, cutoffvalue):
 	colIntensity = pmColumnSums(inputFile, 0)
 	rowIntensity = pmRowSums(inputFile, 0)
-	print(colIntensity)
-	print(rowIntensity)
+	#print(colIntensity)
+	#print(rowIntensity)
 	leftBound = None
 	rightBound = None
 	bottomBound = None
@@ -149,12 +172,12 @@ def boundingBox(inputFile, cutoffvalue):
 	for i in range(len(rowIntensity)):
 		if (rowIntensity[i] / len(colIntensity) != cutoffvalue) and not bottomBound:
 			bottomBound = i
-			print 'Bottom Bound: ' + str(bottomBound)
+			#print 'Bottom Bound: ' + str(bottomBound)
 		if (rowIntensity[i] / len(colIntensity) == cutoffvalue) and bottomBound and not topBound:
 			topBound = i
-			print 'Top Bound: ' + str(topBound)
+			#print 'Top Bound: ' + str(topBound)
         # print([leftBound, rightBound, topBound, bottomBound])
-		print([bottomBound, topBound])
+		#print([bottomBound, topBound])
 	return [leftBound, rightBound, bottomBound, topBound]
 
 
@@ -181,19 +204,19 @@ def imageData(imageName, resolution):
 	bottomBound = imageBoundingBox[2]
 	topBound = imageBoundingBox[3]
 	
-	print 'Image Bounding Box: ' + str(imageBoundingBox)
+	#print 'Image Bounding Box: ' + str(imageBoundingBox)
   
   	# Defines the height and width of each block inside the bounding box subject to the given resolution.
   	blockLengthX = blockLength(leftBound, rightBound, resolution)
   	blockLengthY = blockLength(bottomBound, topBound, resolution) # Assumes the point (0, 0) is at top left corner of image
-  	print([blockLengthX, blockLengthY])
+  	#print([blockLengthX, blockLengthY])
   	image_Data = [[0 for i in range(resolution)] for j in range(resolution)]
   	for j in range(len(image_Data)):
 		for i in range(len(image_Data)):
-			print([j, i])
+			#print([j, i])
 			# This should be tested to see if my math for the pixelAvg() parameters is correct.
 			image_Data[j][i] = pixelAvg(image, leftBound + i * blockLengthX, bottomBound + j * blockLengthY, leftBound + (i + 1) * blockLengthX - 1, bottomBound + (j + 1) * blockLengthY - 1)
-			print(image_Data[j][i])
+			#print(image_Data[j][i])
 	return image_Data
 
 
@@ -201,7 +224,7 @@ def imageData(imageName, resolution):
 # This should be tested; specifically, to make sure the denominator in the average equation is correct.
 # Precondition: The rectangle defined by x1, y1, x2, and y2 is a block.
 def pixelAvg(img, x1, y1, x2, y2):
-	print([x1, y1, x2, y2])
+	#print([x1, y1, x2, y2])
 	sum = 0
 	for y in range(y1, y2 + 1):
 		for x in range(x1, x2 + 1):
@@ -253,11 +276,12 @@ while True:
 	#### START STATS LINES #### 
 		#print 'Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character) \
 	 	#	+ ' Expected Character: ' + str(datum[1]) + ' Current network error rate is: ' + str(network.net_error) + '%'
-                debug_file.write('Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character)
+		debug_file.write('Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character)
 	 		+ ' Expected Character: ' + str(datum[1]) + ' Current network error rate is: ' + str(network.net_error) + '%\n')
 	#### END STATS LINES ####	
 	epoch += 1
-	if network.net_error <= 0.05 or epoch > 100:
+	print 'Current Network Error Rate is: ' + str(network.net_error)
+	if network.net_error <= 0.05 or epoch > 1000:
 		break
 # Network should be trained to data...
 
@@ -271,10 +295,10 @@ basic_captcha_x = imageData('captchas/basic_captcha_x.png', resolution)
 new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A'), (new_font_captcha_a, 'A'),\
 	(new_font_captcha_b, 'B'), (hard_captcha_a, 'A'), (basic_captcha_x, 'X')]
 for datum in new_data:
-	predicted_character = network.forward_propagate(datum[0], datum[1])
+	predicted_character = network.predict(datum[0])
 	print 'This image contains the character: ' + str(predicted_character)
 	print 'Is this the expected output? '
 	if predicted_character == datum[1]:
 		print 'Yes.'
 	else:
-           print 'No.'
+		print 'No.'
