@@ -16,9 +16,11 @@ class NeuralNetwork:
         def forward_propagate(self, input_data, expected_output, epoch):
                 # Setup input nodes
                 for i in range(len(self.input_layer)):
-                        self.input_layer[i].set_value(input_data[i/10][i%10])
-                        self.input_layer[i].output = [self.input_layer[i].value * \
+						self.input_layer[i].set_value(input_data[i/10][i%10])
+						debug_file.write('Normalized input value for input: ' + str(i) + ' = ' + str(self.input_layer[i].value) + '\n')
+						self.input_layer[i].output = [self.input_layer[i].value * \
                                 self.input_layer[i].weights[j] for j in range(len(self.input_layer[i].weights))]
+						debug_file.write('Input nodes output: ' + str(i) + ' = ' + str(self.input_layer[i].output) + '\n')
                 
                 # Setup hidden nodes
                 for i in range(len(self.hidden_layer)):
@@ -27,14 +29,19 @@ class NeuralNetwork:
                         self.hidden_layer[i].value = self.sigmoid(self.hidden_layer[i].input)
                         self.hidden_layer[i].output = [self.hidden_layer[i].value * \
                                 self.hidden_layer[i].weights[j] for j in range(len(self.hidden_layer[i].weights))]
+                        debug_file.write('Hidden Input Value: ' + str(self.hidden_layer[i].input) + '\n')
+                        debug_file.write('Calculated Hidden Value: ' + str(self.hidden_layer[i].value) + '\n')
                 
                 # Setup output nodes
                 for i in range(len(self.output_layer)):
 						self.output_layer[i].input = sum([self.hidden_layer[j].output[i] \
 							for j in range(len(self.hidden_layer))])
 						self.output_layer[i].value = self.sigmoid(self.output_layer[i].input)
+						debug_file.write('Output Input Value: ' + str(self.output_layer[i].input) + '\n')
+						debug_file.write('Calculated Output Value: ' + str(self.output_layer[i].value) + '\n')
 						self.output_layer[i].target = 1 if self.output_layer[i].letter == expected_output else 0 
 						self.output_layer[i].error = self.output_layer[i].target - self.output_layer[i].value
+						debug_file.write('Calculated error value: ' + str(self.output_layer[i].error) + '\n')
 						try:
 							self.output_layer[i].epoch_error += 0.5 * self.output_layer[i].error ** 2
 						except AttributeError:
@@ -51,9 +58,9 @@ class NeuralNetwork:
                         #        debug_file.write('Error of ' + str(self.output_layer[i].letter) + ': ' + str(self.output_layer[i].error) + '\n')
                                 
                 # Overall error equation? : E(x) = 0.5 * sum([output_layer[i].error for i in output_layer] ** 2)
-                #self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
-                self.net_error = sum([self.output_layer[i].epoch_error for i in range(len(self.output_layer))]) \
-					/(len(self.output_layer) * epoch)
+                self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
+                #self.net_error = sum([self.output_layer[i].epoch_error for i in range(len(self.output_layer))]) \
+				#	/(len(self.output_layer) * epoch)
                 
                 # Returns the letter it predicted
                 #predicted = min(self.output_layer[i] for i in range(len(self.output_layer)))
@@ -95,32 +102,49 @@ class NeuralNetwork:
 				# REINSERT UTF-8 SAFE FORMULA
                 # Starting at output....
                 for i in range(len(self.output_layer)):
-                        self.output_layer[i].delta = self.output_layer[i].error * \
-                                self.sigmoid_prime(self.output_layer[i].input)
-                        self.output_layer[i].deltaW = learning_rate * (self.output_layer[i].delta) * \
+						self.output_layer[i].delta = self.output_layer[i].error * \
+                                self.sigmoid_prime(self.output_layer[i].value)
+						debug_file.write('Delta for output node: ' + str(i) + ' = ' + str(self.output_layer[i].delta) + '\n')
+						debug_file.write('Calculated value for output node: ' + str(i) + ' = ' + str(self.output_layer[i].value) + '\n')
+						debug_file.write('Sigmoid Prime value for output node: ' + str(i) + ' = ' + str(self.sigmoid_prime(self.output_layer[i].value)) + '\n')
+						debug_file.write('Error value for output node: ' + str(i) + ' = ' + str(self.output_layer[i].error) + '\n')
+						self.output_layer[i].deltaW = learning_rate * (self.output_layer[i].delta) * \
                                 self.output_layer[i].value
                 # Hidden Nodes....
                 for i in range(len(self.hidden_layer)):
-                        self.hidden_layer[i].delta = self.sigmoid_prime(self.hidden_layer[i].input) * \
-                                sum([(self.output_layer[j].delta * self.hidden_layer[i].weights[j]) \
+						sum_output_deltas = sum([(self.output_layer[j].delta * self.hidden_layer[i].weights[j]) \
                                         for j in range(len(self.hidden_layer[i].weights))])
-                        self.hidden_layer[i].deltaW = learning_rate * (self.hidden_layer[i].delta) * \
+						self.hidden_layer[i].delta = self.sigmoid_prime(self.hidden_layer[i].value) * sum_output_deltas
+						debug_file.write('Delta for hidden node: ' + str(i) + ' = ' + str(self.hidden_layer[i].delta) + '\n')
+						debug_file.write('Calculated value for hidden node: ' + str(i) + ' = ' + str(self.hidden_layer[i].input) + '\n')
+						debug_file.write('Sigma Prime value for hidden node: ' + str(i) + ' = ' + str(self.sigmoid_prime(self.hidden_layer[i].input)) + '\n')
+						debug_file.write('Output Delta Sum: ' + str(i) + ' = ' + str(sum_output_deltas) + '\n')
+						self.hidden_layer[i].deltaW = learning_rate * (self.hidden_layer[i].delta) * \
                                 self.hidden_layer[i].value
                 # Update Weights...
                 # Input Layer...
                 for i in range(len(self.input_layer)):
                         for j in range(len(self.hidden_layer)):
-                                self.input_layer[i].weights[j] += self.hidden_layer[j].deltaW
+								self.input_layer[i].weights[j] += self.hidden_layer[j].deltaW
+								# DON'T UNCOMMENT, VERY SLOW
+								#debug_file.write('Updating weight from Input_Node: ' + str(i) \
+								#	+ ' to Hidden_Node: ' + str(j) + ' new weight: ' +str(self.input_layer[i].weights) + '\n')
                 # Hidden Layer...
                 for i in range(len(self.hidden_layer)):
                         for j in range(len(self.output_layer)):
-                                self.hidden_layer[i].weights[j] += self.output_layer[j].deltaW
+								self.hidden_layer[i].weights[j] += self.output_layer[j].deltaW
+								# DON'T UNCOMMENT, VERY SLOW
+								#debug_file.write('Updating weight from Hidden_Node: ' + str(i) \
+								#	+ ' to Output_Node: ' + str(j) + ' new weight: ' +str(self.input_layer[i].weights) + '\n')
         
         def sigmoid(self, x):
-                return 1/(1+math.exp(-x))
+                #return 1/(1+math.exp(-x))
+				return math.tanh(x)
         
         def sigmoid_prime(self, x):
-                return self.sigmoid(x)*(1 - self.sigmoid(x))
+                #return self.sigmoid(x)*(1 - self.sigmoid(x))
+				#return math.exp(-x)/((1 + math.exp(-x))**2)
+				return 1.0 - self.sigmoid(x)**2
 
 class InputNode:
         def set_value(self, value):
@@ -262,13 +286,13 @@ e_Data = imageData('test_set/e.png', resolution)
 
 #print(a_Data)
 
-training_data = [(a_Data, 'A'), (b_Data, 'B'), (c_Data, 'C'), (d_Data, 'D'), (e_Data, 'E')] # , (b_Data, 'B'), ...]
-
+#training_data = [(a_Data, 'A'), (b_Data, 'B'), (c_Data, 'C'), (d_Data, 'D'), (e_Data, 'E')] # , (b_Data, 'B'), ...]
+training_data = [(a_Data, 'A'), (b_Data, 'B'), (c_Data, 'C')]
 ## TODO: Add more letters ##
 
 ###### CONSTANTS ######
 input_nodes = resolution ** 2 # Image is split up blocks spanning 10 x 10 
-output_nodes = 5 # One for each character of the alphabet (UPPERCASE ONLY!)
+output_nodes = 3 # One for each character of the alphabet (UPPERCASE ONLY!)
 hidden_nodes = (input_nodes + output_nodes) / 2 # A starting point... may require fine tuning.
 learning_rate = 0.1 # Again this may need to be adjusted...
 # Initialize the network
@@ -287,25 +311,25 @@ while True:
                 debug_file.write('Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character)
                         + ' Expected Character: ' + str(datum[1]) + ' Current network error rate is: ' + str(network.net_error) + '%\n')
         #### END STATS LINES ####       
-        epoch += 1
-        print 'Current Network Error Rate is: ' + str(network.net_error)
+		print 'Epoch#: ' + str(epoch) + ' - Current Network Error Rate is: ' + str(network.net_error)
+		epoch += 1
         if network.net_error <= 0.05 or epoch > 1000:
                 break
 # Network should be trained to data...
 
 # Try something new...
-basic_captcha_a = imageData('captchas/basic_captcha_a.png', resolution)
-easy_captcha_a = imageData('captchas/easy_captcha_a.png', resolution)
-new_font_captcha_a = imageData('captchas/new_font_captcha_a.png', resolution)
-new_font_captcha_b = imageData('captchas/new_font_captcha_b.png', resolution)
-hard_captcha_a = imageData('captchas/hard_captcha_a.png', resolution)
-test_set_c = imageData('test_set/c.png', resolution)
+#basic_captcha_a = imageData('captchas/basic_captcha_a.png', resolution)
+#easy_captcha_a = imageData('captchas/easy_captcha_a.png', resolution)
+#new_font_captcha_a = imageData('captchas/new_font_captcha_a.png', resolution)
+#new_font_captcha_b = imageData('captchas/new_font_captcha_b.png', resolution)
+#hard_captcha_a = imageData('captchas/hard_captcha_a.png', resolution)
+#test_set_c = imageData('test_set/c.png', resolution)
 #basic_captcha_x = imageData('captchas/basic_captcha_x.png', resolution)
 #new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A'), (new_font_captcha_a, 'A'),\
 #        (new_font_captcha_b, 'B'), (hard_captcha_a, 'A'), (basic_captcha_x, 'X')]
-new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A'), (new_font_captcha_a, 'A'),\
-        (new_font_captcha_b, 'B'), (hard_captcha_a, 'A'), (test_set_c, 'C')]
-for datum in new_data:
+#new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A'), (new_font_captcha_a, 'A'),\
+#        (new_font_captcha_b, 'B'), (hard_captcha_a, 'A'), (test_set_c, 'C')]
+for datum in training_data:
         predicted_character = network.predict(datum[0])
         print 'This image contains the character: ' + str(predicted_character)
         print 'Is this the expected output? '
