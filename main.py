@@ -30,11 +30,15 @@ class NeuralNetwork:
                 
                 # Setup output nodes
                 for i in range(len(self.output_layer)):
-                        self.output_layer[i].input = sum([self.hidden_layer[j].output[i] \
-                                for j in range(len(self.hidden_layer))])
-                        self.output_layer[i].value = self.sigmoid(self.output_layer[i].input)
-                        self.output_layer[i].target = 1 if self.output_layer[i].letter == expected_output else 0 
-                        self.output_layer[i].error = self.output_layer[i].target - self.output_layer[i].value
+						self.output_layer[i].input = sum([self.hidden_layer[j].output[i] \
+							for j in range(len(self.hidden_layer))])
+						self.output_layer[i].value = self.sigmoid(self.output_layer[i].input)
+						self.output_layer[i].target = 1 if self.output_layer[i].letter == expected_output else 0 
+						self.output_layer[i].error = self.output_layer[i].target - self.output_layer[i].value
+						try:
+							self.output_layer[i].epoch_error += 0.5 * self.output_layer[i].error ** 2
+						except AttributeError:
+							self.output_layer[i].epoch_error = 0.5 * self.output_layer[i].error ** 2
                         # Error = tk - outk
                         #if self.output_layer[i].letter == expected_output:
                         #       self.output_layer[i].error = 1 - self.output_layer[i].value
@@ -48,7 +52,7 @@ class NeuralNetwork:
                                 
                 # Overall error equation? : E(x) = 0.5 * sum([output_layer[i].error for i in output_layer] ** 2)
                 #self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
-                self.net_error = abs(sum([self.output_layer[i].error for i in range(len(self.output_layer))]))
+                self.net_error = sum([self.output_layer[i].epoch_error for i in range(len(self.output_layer))])
                 
                 # Returns the letter it predicted
                 #predicted = min(self.output_layer[i] for i in range(len(self.output_layer)))
