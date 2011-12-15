@@ -87,9 +87,7 @@ class NeuralNetwork:
                 return max([self.output_layer[i] for i in range(len(self.output_layer))]).letter
         
         def backpropagate(self):
-                # ∆wij = ηδj outj
-                # If output node: δj = (tj − outj )g'j(hj)
-                # Else: δj = g'j(hj)sum(δkwk) over k
+				# REINSERT UTF-8 SAFE FORMULA
                 # Starting at output....
                 for i in range(len(self.output_layer)):
                         self.output_layer[i].delta = self.output_layer[i].error * \
@@ -265,9 +263,9 @@ training_data = [(a_Data, 'A'), (b_Data, 'B'), (c_Data, 'C'), (d_Data, 'D'), (e_
 
 ###### CONSTANTS ######
 input_nodes = resolution ** 2 # Image is split up blocks spanning 10 x 10 
-output_nodes = 26 # One for each character of the alphabet (UPPERCASE ONLY!)
+output_nodes = 5 # One for each character of the alphabet (UPPERCASE ONLY!)
 hidden_nodes = (input_nodes + output_nodes) / 2 # A starting point... may require fine tuning.
-learning_rate = 0.2 # Again this may need to be adjusted...
+learning_rate = 0.01 # Again this may need to be adjusted...
 # Initialize the network
 network = NeuralNetwork(input_nodes, hidden_nodes, output_nodes, learning_rate)
 # Run through training data...
@@ -285,7 +283,7 @@ while True:
                         + ' Expected Character: ' + str(datum[1]) + ' Current network error rate is: ' + str(network.net_error) + '%\n')
         #### END STATS LINES ####       
         epoch += 1
-        #print 'Current Network Error Rate is: ' + str(network.net_error)
+        print 'Current Network Error Rate is: ' + str(network.net_error)
         if network.net_error <= 0.05 or epoch > 1000:
                 break
 # Network should be trained to data...
@@ -296,9 +294,12 @@ easy_captcha_a = imageData('captchas/easy_captcha_a.png', resolution)
 new_font_captcha_a = imageData('captchas/new_font_captcha_a.png', resolution)
 new_font_captcha_b = imageData('captchas/new_font_captcha_b.png', resolution)
 hard_captcha_a = imageData('captchas/hard_captcha_a.png', resolution)
-basic_captcha_x = imageData('captchas/basic_captcha_x.png', resolution)
+test_set_c = imageData('test_set/c.png', resolution)
+#basic_captcha_x = imageData('captchas/basic_captcha_x.png', resolution)
+#new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A'), (new_font_captcha_a, 'A'),\
+#        (new_font_captcha_b, 'B'), (hard_captcha_a, 'A'), (basic_captcha_x, 'X')]
 new_data = [(basic_captcha_a, 'A'), (easy_captcha_a, 'A'), (new_font_captcha_a, 'A'),\
-        (new_font_captcha_b, 'B'), (hard_captcha_a, 'A'), (basic_captcha_x, 'X')]
+        (new_font_captcha_b, 'B'), (hard_captcha_a, 'A'), (test_set_c, 'C')]
 for datum in new_data:
         predicted_character = network.predict(datum[0])
         print 'This image contains the character: ' + str(predicted_character)
