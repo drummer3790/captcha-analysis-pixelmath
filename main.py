@@ -13,7 +13,8 @@ class NeuralNetwork:
                 for node in self.hidden_layer:
                         node.weights = [random() for i in self.output_layer]
         
-        def forward_propagate(self, input_data, expected_output):
+        def forward_propagate(self, input_data, expected_output, epoch):
+                epoch += 1
                 # Setup input nodes
                 for i in range(len(self.input_layer)):
                         self.input_layer[i].set_value(input_data[i/10][i%10])
@@ -52,7 +53,8 @@ class NeuralNetwork:
                                 
                 # Overall error equation? : E(x) = 0.5 * sum([output_layer[i].error for i in output_layer] ** 2)
                 #self.net_error = 0.5 * sum([self.output_layer[i].error ** 2 for i in range(len(self.output_layer))])
-                self.net_error = sum([self.output_layer[i].epoch_error for i in range(len(self.output_layer))])
+                self.net_error = sum([self.output_layer[i].epoch_error for i in range(len(self.output_layer))]) \
+					/(len(self.output_layer) * epoch)
                 
                 # Returns the letter it predicted
                 #predicted = min(self.output_layer[i] for i in range(len(self.output_layer)))
@@ -95,12 +97,12 @@ class NeuralNetwork:
                 # Starting at output....
                 for i in range(len(self.output_layer)):
                         self.output_layer[i].delta = self.output_layer[i].error * \
-                                self.sigmoid_prime(self.output_layer[i].value)
+                                self.sigmoid_prime(self.output_layer[i].input)
                         self.output_layer[i].deltaW = learning_rate * (self.output_layer[i].delta) * \
                                 self.output_layer[i].value
                 # Hidden Nodes....
                 for i in range(len(self.hidden_layer)):
-                        self.hidden_layer[i].delta = self.sigmoid_prime(self.hidden_layer[i].value) * \
+                        self.hidden_layer[i].delta = self.sigmoid_prime(self.hidden_layer[i].input) * \
                                 sum([(self.output_layer[j].delta * self.hidden_layer[i].weights[j]) \
                                         for j in range(len(self.hidden_layer[i].weights))])
                         self.hidden_layer[i].deltaW = learning_rate * (self.hidden_layer[i].delta) * \
@@ -278,7 +280,7 @@ while True:
         for datum in training_data:
                 #print datum[1]
                 debug_file.write(str(datum[1])+'\n')
-                predicted_character = network.forward_propagate(datum[0], datum[1])
+                predicted_character = network.forward_propagate(datum[0], datum[1], 0)
                 network.backpropagate()
         #### START STATS LINES #### 
                 #print 'Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character) \
