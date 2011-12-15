@@ -14,7 +14,6 @@ class NeuralNetwork:
                         node.weights = [random() for i in self.output_layer]
         
         def forward_propagate(self, input_data, expected_output, epoch):
-                epoch += 1
                 # Setup input nodes
                 for i in range(len(self.input_layer)):
                         self.input_layer[i].set_value(input_data[i/10][i%10])
@@ -271,16 +270,16 @@ training_data = [(a_Data, 'A'), (b_Data, 'B'), (c_Data, 'C'), (d_Data, 'D'), (e_
 input_nodes = resolution ** 2 # Image is split up blocks spanning 10 x 10 
 output_nodes = 5 # One for each character of the alphabet (UPPERCASE ONLY!)
 hidden_nodes = (input_nodes + output_nodes) / 2 # A starting point... may require fine tuning.
-learning_rate = 0.01 # Again this may need to be adjusted...
+learning_rate = 0.1 # Again this may need to be adjusted...
 # Initialize the network
 network = NeuralNetwork(input_nodes, hidden_nodes, output_nodes, learning_rate)
 # Run through training data...
-epoch = 0 # Used to determine how many times we have ran through the training data.
+epoch = 1 # Used to determine how many times we have ran through the training data.
 while True:
         for datum in training_data:
                 #print datum[1]
                 debug_file.write(str(datum[1])+'\n')
-                predicted_character = network.forward_propagate(datum[0], datum[1], 0)
+                predicted_character = network.forward_propagate(datum[0], datum[1], epoch)
                 network.backpropagate()
         #### START STATS LINES #### 
                 #print 'Pass: ' + str(epoch) + '-> Predicted Character: ' + str(predicted_character) \
