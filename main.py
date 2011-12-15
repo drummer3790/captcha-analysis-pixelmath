@@ -26,10 +26,11 @@ class NeuralNetwork:
                 for i in range(len(self.hidden_layer)):
                         self.hidden_layer[i].input = sum([self.input_layer[j].output[i]
                                 for j in range(len(self.input_layer))])
+                        debug_file.write('Hidden Input Value: ' + str(self.hidden_layer[i].input) + '\n')
                         self.hidden_layer[i].value = self.sigmoid(self.hidden_layer[i].input)
                         self.hidden_layer[i].output = [self.hidden_layer[i].value * \
                                 self.hidden_layer[i].weights[j] for j in range(len(self.hidden_layer[i].weights))]
-                        debug_file.write('Hidden Input Value: ' + str(self.hidden_layer[i].input) + '\n')
+                        
                         debug_file.write('Calculated Hidden Value: ' + str(self.hidden_layer[i].value) + '\n')
                 
                 # Setup output nodes
@@ -42,10 +43,10 @@ class NeuralNetwork:
 						self.output_layer[i].target = 1 if self.output_layer[i].letter == expected_output else 0 
 						self.output_layer[i].error = self.output_layer[i].target - self.output_layer[i].value
 						debug_file.write('Calculated error value: ' + str(self.output_layer[i].error) + '\n')
-						try:
-							self.output_layer[i].epoch_error += 0.5 * self.output_layer[i].error ** 2
-						except AttributeError:
-							self.output_layer[i].epoch_error = 0.5 * self.output_layer[i].error ** 2
+						#try:
+						#	self.output_layer[i].epoch_error += 0.5 * self.output_layer[i].error ** 2
+						#except AttributeError:
+						#	self.output_layer[i].epoch_error = 0.5 * self.output_layer[i].error ** 2
                         # Error = tk - outk
                         #if self.output_layer[i].letter == expected_output:
                         #       self.output_layer[i].error = 1 - self.output_layer[i].value
@@ -108,6 +109,7 @@ class NeuralNetwork:
 						debug_file.write('Calculated value for output node: ' + str(i) + ' = ' + str(self.output_layer[i].value) + '\n')
 						debug_file.write('Sigmoid Prime value for output node: ' + str(i) + ' = ' + str(self.sigmoid_prime(self.output_layer[i].value)) + '\n')
 						debug_file.write('Error value for output node: ' + str(i) + ' = ' + str(self.output_layer[i].error) + '\n')
+						
 						self.output_layer[i].deltaW = learning_rate * (self.output_layer[i].delta) * \
                                 self.output_layer[i].value
                 # Hidden Nodes....
@@ -119,6 +121,8 @@ class NeuralNetwork:
 						debug_file.write('Calculated value for hidden node: ' + str(i) + ' = ' + str(self.hidden_layer[i].input) + '\n')
 						debug_file.write('Sigma Prime value for hidden node: ' + str(i) + ' = ' + str(self.sigmoid_prime(self.hidden_layer[i].input)) + '\n')
 						debug_file.write('Output Delta Sum: ' + str(i) + ' = ' + str(sum_output_deltas) + '\n')
+						if self.hidden_layer[i].delta > 1:
+							debug_file.write('WOAH! Delta for layer ' + str(i) + ' is : ' + str(self.hidden_layer[i].delta) + '\n')
 						self.hidden_layer[i].deltaW = learning_rate * (self.hidden_layer[i].delta) * \
                                 self.hidden_layer[i].value
                 # Update Weights...
@@ -126,17 +130,12 @@ class NeuralNetwork:
                 for i in range(len(self.input_layer)):
                         for j in range(len(self.hidden_layer)):
 								self.input_layer[i].weights[j] += self.hidden_layer[j].deltaW
-								# DON'T UNCOMMENT, VERY SLOW
-								#debug_file.write('Updating weight from Input_Node: ' + str(i) \
-								#	+ ' to Hidden_Node: ' + str(j) + ' new weight: ' +str(self.input_layer[i].weights) + '\n')
+								
                 # Hidden Layer...
                 for i in range(len(self.hidden_layer)):
                         for j in range(len(self.output_layer)):
 								self.hidden_layer[i].weights[j] += self.output_layer[j].deltaW
-								# DON'T UNCOMMENT, VERY SLOW
-								#debug_file.write('Updating weight from Hidden_Node: ' + str(i) \
-								#	+ ' to Output_Node: ' + str(j) + ' new weight: ' +str(self.input_layer[i].weights) + '\n')
-        
+
         def sigmoid(self, x):
                 #return 1/(1+math.exp(-x))
 				return math.tanh(x)
@@ -315,7 +314,7 @@ while True:
 		epoch += 1
         if network.net_error <= 0.05 or epoch > 1000:
                 break
-# Network should be trained to data...
+ Network should be trained to data...
 
 # Try something new...
 #basic_captcha_a = imageData('captchas/basic_captcha_a.png', resolution)
@@ -337,3 +336,17 @@ for datum in training_data:
                 print 'Yes.'
         else:
                 print 'No.'
+				
+# User Input:
+# Load image in
+print 'Please select an image for recognition.'
+filename = pmGetString('Enter image file name')
+expected = pmGetString('Enter expected characters for the given image')
+new_captcha = imageData(filename, resolution)
+predicted_character = network.predict(new_captcha)
+print 'This image contains the character: ' + str(predicted_character)
+print 'Is this the expected output? '
+if predicted_character == expected:
+        print 'Yes.'
+else:
+        print 'No.'
