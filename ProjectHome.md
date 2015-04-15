@@ -1,0 +1,1 @@
+The purpose of this project is to attempt to do very primitive image analysis in order to try and break Captchas. This project will utilize the PixelMath Java package to do it's image analysis.
